@@ -118,60 +118,60 @@ namespace Server.Misc
 
 		public static bool CheckSkill( Mobile from, Skill skill, object amObj, double chance )
 		{
+			// The actual skill check for action. Difficulty is passed from the method call.
+			bool success = ( chance >= Utility.RandomDouble() );
+
+			// Begin the calculations for skill gain.
 			SkillName skillName = skill.SkillName;
 
-			if ( from.Skills.Cap == 0 )
+			// If you don't have the skill, you don't get to use it.
+			if ( skill.Cap == 0)
 				return false;
 
-			double gainer = 2.0;
+			// Gain Chance (gc) decreases as both skill and total skill approach their caps, approaching zero.
+			// To be clear, training a skill early has enormous impact.
+			double gc = (double)( ( skill.Cap - skill.Base ) / skill.Cap + (from.Skills.Cap - from.Skills.Total) / from.Skills.Cap ) / 11;
 
-			if ( from is PlayerMobile )
-			{
-				if ( IsGuildSkill( from, skillName ) == true )
-				{
-					switch( Utility.RandomMinMax( 0, 5 ) )
-					{
-						case 0: gainer = 1.5; break;
-						case 1: gainer = 1.4; break;
-						case 2: gainer = 1.3; break;
-						case 3: gainer = 1.2; break;
-						case 4: gainer = 1.1; break;
-						case 5: gainer = 1.0; break;
-					}
-				}
-			}
-
-			gainer = gainer - MyServerSettings.SkillGain();
-
-			bool success = ( chance >= Utility.RandomDouble() );
-			double gc = (double)(from.Skills.Cap - from.Skills.Total) / from.Skills.Cap;
-			gc += ( skill.Cap - skill.Base ) / skill.Cap;
-			gc /= gainer;
-
-			gc += ( 1.0 - chance ) * ( success ? 0.5 : (Core.AOS ? 0.0 : 0.2) );
-			gc /= gainer;
-
-			gc *= skill.Info.GainFactor;
-
+			// But zero gains is just too low. Minimum base chance is 1%.
 			if ( gc < 0.01 )
 				gc = 0.01;
+			
+			// Now the custom (server and character) bonuses (or penalties) come into play.
+			// Guild skill bonus.
+			if (from is PlayerMobile)
+			{
+				if ( IsGuildSkill( from, skillName ) == true )
+					gc *= 1.5;
+			}
+			// GainFactor passed from the method call. Refinements can be made in Skills.cs.
+			gc *= skill.Info.GainFactor;
 
-			if ( from is BaseCreature && ((BaseCreature)from).Controlled )
+			// Flat multiplier applied from player settings.
+			gc *= MyServerSettings.SkillGain();
+
+			// Pets gain twice as faster.
+			if ( from is BaseCreature && ((BaseCreature)from).Controlled )     
 				gc *= 2;
 
+			// No matter how fat bonuses are stacked, there is still a chance, 1 in 100, that we fail to gain.
+			if ( gc > 0.99 )
+				gc = 0.99;
+
+			// Finally, the check!
 			if ( from.Alive && ( ( gc >= Utility.RandomDouble() && AllowGain( from, skill, amObj ) ) || skill.Base < 10.0 ) )
 			{
-				// CAN ONLY GAIN SEAFARING SKILL ON A BOAT AFTER REACHING 50
+			    // Can fish, apparently, but not gain SEAFARING SKILL unless in a boat after reaching 50 skill
 				if ( !Worlds.IsOnBoat( from ) && skill.SkillName == SkillName.Seafaring && from.Skills[SkillName.Seafaring].Base >= 50 )
 				{
 					from.SendMessage("You would get better at seafaring if you fished from a boat.");
 				}
 				else
 				{
+				// Everyone else, get those gains!
 					Gain( from, skill );
 				}
 			}
-
+			// Time to notify the system about that skill check.
 			return success;
 		}
 

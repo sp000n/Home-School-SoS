@@ -329,10 +329,11 @@ namespace Server
 
 		public static double S_SpecialWeaponAbilSkill = 70.0;
 
-	// This number can be set from zero to 10, where 10 will give characters faster skill gain and zero
-	// leaves it normal (default).
+	// This is a flat, multiplicitive modifier, 1x (slow, default) to very large, to the rate of all skill gain for both
+	// characters and NPCs. A very high number can result in as high as a 99% chance to gain skill each time the skill
+	// is used. Refinements to individual skills gain rates can be made to gainFactor in Skills.cs. 10 is a sweet spot.
 
-		public static int S_SkillGain = 0;
+	public static int S_SkillGain = 10;
 
 	// This decimal number can be adjusted to set the maximum skill one can gain from training dummies,
 	// training daemons, and archery buttes.

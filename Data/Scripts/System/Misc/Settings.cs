@@ -525,13 +525,12 @@ namespace Server
 		{
 			int skill = 0;
 
-			if ( MySettings.S_SkillGain > 10 )
-				skill = 10;
-
 			if ( MySettings.S_SkillGain < 1 )
-				skill = 0;
+				skill = 1;
+			else
+				skill = MySettings.S_SkillGain;
 
-			return skill * 0.1;
+			return skill;
 		}
 
 		public static int FoodCheck()
