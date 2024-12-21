@@ -354,7 +354,12 @@ namespace Server.SkillHandlers
 
 							if ( alreadyOwned )
 							{
+<<<<<<< HEAD
 								m_Tamer.SendLocalizedMessage( 502797 ); // That wasn't even challenging.
+=======
+								ScaleSkills( m_Creature, 1.20 ); // 120% of skills for scooping the tame (can abuse)
+								m_Tamer.SendMessage( "The training didn't do you much good, but your creature has flourished!" );
+>>>>>>> parent of 884b0d1 (I lost the notes on this commit. All changes are small explorations of code.)
 							}
 							else
 							{

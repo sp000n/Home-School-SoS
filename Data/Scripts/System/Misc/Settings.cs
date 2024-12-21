@@ -526,9 +526,13 @@ namespace Server
 			int skill = 0;
 
 			if ( MySettings.S_SkillGain < 1 )
+<<<<<<< HEAD
 				skill = 1;
 			else
 				skill = MySettings.S_SkillGain;
+=======
+				skill = 0;
+>>>>>>> parent of 884b0d1 (I lost the notes on this commit. All changes are small explorations of code.)
 
 			return skill;
 		}
